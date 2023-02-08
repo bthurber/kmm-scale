@@ -1,36 +1,5 @@
 #!/bin/bash
 
-# Install tmux
-dnf -y install tmux
-
-# Upgrade packages
-dnf -y upgrade
-
-# Enable epel
-dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-
-# Install a proper editor
-dnf -y install joe
-
-# Install container engine
-dnf -y install podman
-
-# Install go
-dnf -y install go
-
-# Extend path
-echo 'PATH=$PATH:~/go/bin' >~/.bashrc
-
-# Install kind
-go install sigs.k8s.io/kind@v0.17
-
-# Install clusteradm
-curl -L https://raw.githubusercontent.com/open-cluster-management-io/clusteradm/main/install.sh | bash
-
-# Install kubectl
-curl -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl >/usr/bin/kubectl
-chmod +x /usr/bin/kubectl
-
 # Cleanup previous hosts
 kind delete clusters cluster1 cluster2 cluster3 cluster4 cluster5 cluster cluster0 hub
 
