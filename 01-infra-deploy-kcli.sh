@@ -93,15 +93,17 @@ apiserver=$(clusteradm get token | grep -v token= | tr " " "\n" | grep apiserver
 MAXSPOKE=4
 
 # Join the spokes to the cluster
-for spoke in $(seq 1 ${MAXSPOKE}); do
+for spoke in $(seq 0 ${MAXSPOKE}); do
     export KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
     token=$(clusteradm get token } | grep token= | cut -d "=" -f 2-)
     export KUBECONFIG=/root/.kcli/clusters/cluster${spoke}/auth/kubeconfig
     clusteradm join --hub-token ${token} --hub-apiserver ${apiserver} --wait --cluster-name "cluster${spoke}" # --force-internal-endpoint-lookup
 done
 
+clusteradm addon enable addon --names config-policy-controller --clusters $(echo $(for spoke in $(seq 0 ${MAXSPOKE}); do echo cluster${spoke}; done | xargs echo))
+
 # Check clusterlet status
-for spoke in $(seq 1 ${MAXSPOKE}); do
+for spoke in $(seq 0 ${MAXSPOKE}); do
     export KUBECONFIG=/root/.kcli/clusters/cluster${spoke}/auth/kubeconfig
     kubectl get klusterlet
 done
@@ -111,7 +113,7 @@ export KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
 kubectl get csr
 
 # Accept joins from HUB
-for spoke in $(seq 1 ${MAXSPOKE}); do
+for spoke in $(seq 0 ${MAXSPOKE}); do
     export KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
     clusteradm accept --clusters cluster${spoke}
 done

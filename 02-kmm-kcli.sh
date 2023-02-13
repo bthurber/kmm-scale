@@ -35,6 +35,8 @@ CATALOG_IMG=quay.io/${MYUSER}/kernel-module-management-catalog-hub:latest make c
 
 export KUBECONFIG=/root/.kcli/clusters/hub/auth/kubeconfig
 
+kubectl label node hub-control-plane node-role.kubernetes.io/worker=""
+
 cat <<EOF | oc apply -f -
 ---
 apiVersion: v1
@@ -182,6 +184,7 @@ MAXSPOKE=4
 
 for spoke in $(seq 1 ${MAXSPOKE}); do
     export KUBECONFIG=/root/.kcli/clusters/cluster${spoke}/auth/kubeconfig
+    kubectl label node hub-control-plane node-role.kubernetes.io/worker=""
 
     cat <<EOF | oc apply -f -
 apiVersion: operators.coreos.com/v1alpha1
