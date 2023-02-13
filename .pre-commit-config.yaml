@@ -92,8 +92,7 @@ repos:
     rev: 0.2.2 # or other specific tag
     hooks:
       - id: yamlfmt
-        args: [--mapping, '2', --sequence, '4', --offset, '2', '--preserve-quotes']
-
+        args: [--mapping, "2", --sequence, "4", --offset, "2", "--preserve-quotes"]
 
   - repo: https://github.com/hcodes/yaspeller.git
     rev: v8.0.1
