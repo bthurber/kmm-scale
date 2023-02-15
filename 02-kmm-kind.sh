@@ -22,12 +22,10 @@ $()$(
     fieldRef:
 )$()
 
-Then change to the managed cluster kubectl context and deploy KMM managed
-
+kubectl config set-context ${CTX_HUB_CLUSTER}
 make deploy
 
 ### Applying the required OCM Policy
-This Policy adds the required permissions to the Spoke klusterlet, in order for the latter to be able to CRUD KMM Module CRs.
 
 cat <<EOF | oc apply -f -
 ---
