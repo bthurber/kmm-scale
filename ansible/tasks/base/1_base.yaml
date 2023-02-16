@@ -6,3 +6,6 @@
       - joe
       - podman
       - go
+      - libvirt
+      - libvirt-daemon-driver-qemu
+      - qemu-kvm

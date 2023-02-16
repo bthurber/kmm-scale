@@ -40,7 +40,6 @@ curl -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s http
 chmod +x /usr/bin/kubectl
 
 # Prepare kcli installation
-sudo yum -y install libvirt libvirt-daemon-driver-qemu qemu-kvm
 sudo usermod -aG qemu,libvirt $(id -un)
 sudo newgrp libvirt
 sudo systemctl enable --now libvirtd
