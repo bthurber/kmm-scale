@@ -1,0 +1,11 @@
+---
+  - name: Configure User environment
+    lineinfile:
+      dest: /root/.bashrc
+      create: true
+      state: present
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - {regexp: "^export GOPATH", line: "export GOPATH=~/go"}
+      - {regexp: "^export PATH.*", line: "export PATH=$PATH:$GOPATH/bin"}

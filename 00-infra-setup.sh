@@ -1,28 +1,33 @@
 #!/bin/bash
-# Adjust limits
-sudo sysctl fs.inotify.max_user_watches=524288
-sudo sysctl fs.inotify.max_user_instances=512
 
-# Install tmux
-dnf -y install tmux
+# Moved to ansible playbook
 
-# Upgrade packages
-dnf -y upgrade
+# # Adjust limits
+# sudo sysctl fs.inotify.max_user_watches=524288
+# sudo sysctl fs.inotify.max_user_instances=512
 
-# Enable epel
-dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+# # Install tmux
+# dnf -y install tmux
 
-# Install a proper editor
-dnf -y install joe
+# # Upgrade packages
+# dnf -y upgrade
 
-# Install container engine
-dnf -y install podman
+# # Enable epel
+# dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
-# Install go
-dnf -y install go
+# # Install a proper editor
+# dnf -y install joe
 
-# Extend path
-echo 'PATH=$PATH:~/go/bin' >~/.bashrc
+# # Install container engine
+# dnf -y install podman
+
+# # Install go
+# dnf -y install go
+
+# # Extend path
+# echo 'PATH=$PATH:~/go/bin' >~/.bashrc
+
+ansible-playbook -i allhosts setup.yaml
 
 # Install kind
 go install sigs.k8s.io/kind@v0.17

@@ -21,3 +21,9 @@ all:
   children:
     worker-0:
       hosts: worker-0
+
+    master-1:
+      hosts: master-1
+
+    master-2:
+      hosts: master-2

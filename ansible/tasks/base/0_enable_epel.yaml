@@ -1,0 +1,20 @@
+---
+  - name: Determine the major version of the distribution
+    set_fact:
+      major_version: "{{ ansible_distribution_major_version }}"
+
+  - name: Enable the EPEL repository for EL{{major_version}}
+    yum_repository:
+      name: epel
+      description: EPEL repository
+      metalink: https://mirrors.fedoraproject.org/metalink?repo=epel-$releasever&arch=$basearch&infra=$infra&content=$contentdir
+      gpgcheck: yes
+      gpgkey: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{major_version}}
+      enabled: yes
+      state: present
+
+
+  - name: Install the EPEL{{major_version}} repository package
+    package: name={{ item }} state=present
+    with_items:
+      - epel-release
