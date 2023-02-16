@@ -1,0 +1,29 @@
+---
+  - name: Install helpful packages
+    package: name={{ item }} state=present
+    with_items:
+      - sysstat
+
+  - name: Create systemd timer for 1 minute sysstat collection
+    copy:
+      dest: /etc/systemd/system/perf-sysstat-collect.timer
+      mode: 0644
+      content: |
+        # Based on /usr/lib/systemd/system/sysstat-collect.timer
+        #
+        # sysstat-12.5.4 systemd unit file:
+        #        Activates activity collector every 1 minute
+
+        [Unit]
+        Description=Run system activity accounting tool every 1 minute
+
+        [Timer]
+        OnCalendar=*:00/1
+
+        [Install]
+        WantedBy=sysstat.service
+
+  - name: Enable collect timer
+    service:
+      name: sysstat-collect.timer
+      state: started

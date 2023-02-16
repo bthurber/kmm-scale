@@ -1,0 +1,23 @@
+all:
+  vars:
+    system_timezone: Europe/Madrid
+    ansible_connection: ssh
+    ansible_ssh_user: root
+    sshpassword: True
+    telegramchatid: False
+    telegramproposals: False
+    telegramtopic: False
+    telegramtoken: False
+    gmail: False
+    sendinblue: False
+    os: fedora
+
+    sshkeys: []
+    users:
+      - iranzo
+
+    envvar: []
+
+  children:
+    worker-0:
+      hosts: worker-0

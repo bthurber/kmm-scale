@@ -10,4 +10,8 @@ This repository contains some scripts and helpers to setup virtual HW infrastruc
 
 - OpenShift pull secret (for deploying the spokes and hub)
 
+#### Kind
+
+- Nothing specific required
+
 ### KMM
