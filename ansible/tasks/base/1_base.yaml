@@ -9,3 +9,4 @@
       - libvirt
       - libvirt-daemon-driver-qemu
       - qemu-kvm
+      - rsync
