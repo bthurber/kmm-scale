@@ -7,5 +7,6 @@
       regexp: "{{ item.regexp }}"
       line: "{{ item.line }}"
     with_items:
+      - {regexp: "^.*PATH.*", line: "export PATH=$PATH:~/go/bin:/root/.local/bin"}
       - {regexp: "^export GOPATH", line: "export GOPATH=~/go"}
-      - {regexp: "^export PATH.*", line: "export PATH=$PATH:$GOPATH/bin:/root/.local/bin"}
+      - {regexp: "^.*PROMPT_COMMAND.*", line: ""}
