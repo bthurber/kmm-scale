@@ -8,4 +8,4 @@
       line: "{{ item.line }}"
     with_items:
       - {regexp: "^export GOPATH", line: "export GOPATH=~/go"}
-      - {regexp: "^export PATH.*", line: "export PATH=$PATH:$GOPATH/bin"}
+      - {regexp: "^export PATH.*", line: "export PATH=$PATH:$GOPATH/bin:/root/.local/bin"}
