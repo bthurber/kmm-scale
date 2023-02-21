@@ -1,0 +1,41 @@
+---
+  - hosts: all
+    user: root
+    strategy: free
+
+    vars:
+      console_keymap: en
+      console_font: eurlatgr
+      system_locale: en_US.UTF-8
+      root_shell: /bin/bash
+      domain: "{{ ansible_nodename.split('.')[1:] | join('.') }}"
+      keys:
+        - key: "{{ sshkey }}"
+
+    tasks:
+      - name: Delete kind clusters
+        shell: kind delete cluster --name cluster{{item}};
+        with_sequence: start=0 end=250
+
+      - name: Flush handlers
+        meta: flush_handlers
+
+    handlers:
+      - name: Restart monit
+        service:
+          name: monit
+          state: restarted
+        when: monit
+
+      - name: Restart systemd
+        shell: systemctl daemon-reload
+
+      - name: Restart sshd
+        service:
+          name: sshd
+          state: restarted
+
+      - name: Restart systemd-journald
+        service:
+          name: systemd-journald
+          state: restarted

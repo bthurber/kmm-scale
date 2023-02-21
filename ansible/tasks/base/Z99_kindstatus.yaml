@@ -1,0 +1,8 @@
+---
+  - name: Get number of clusters
+    shell: kind get clusters|grep cluster|wc -l
+    register: output
+
+  - name: Print number of clusters
+    debug:
+      msg: "{{output.stdout_lines}}"
