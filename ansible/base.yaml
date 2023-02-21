@@ -16,6 +16,10 @@
         include_tasks: "{{item}}"
         loop: "{{ query('fileglob', 'tasks/base/sshkeys.yaml') | sort }}"
 
+      - name: Include extra tasks
+        include_tasks: "{{item}}"
+        loop: "{{ query('fileglob', 'tasks/base/sysctl.yaml') | sort }}"
+
       - name: Flush handlers
         meta: flush_handlers
 
