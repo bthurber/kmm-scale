@@ -1,0 +1,28 @@
+---
+  - set_fact:
+      vgroup: "{{item }}"
+    with_items: "{{ ansible_facts.lvm.vgs.keys() }}"
+  - name: umount home
+    mount:
+      path: /home
+      state: absent
+  - name: remove home volume
+    lvol:
+      vg: "{{ vgroup }}"
+      lv: home
+      state: absent
+      force: yes
+  - name: Resize root LV
+    lvol:
+      vg: "{{ vgroup }}"
+      lv: root
+      size: 100%PVS
+      resizefs: true
+    ignore_errors: true
+  - name: make home
+    file:
+      path: /home
+      mode: 0755
+      state: directory
+  - name: fix selinux
+    shell: restorecon -Rv /home

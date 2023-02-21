@@ -1,0 +1,41 @@
+---
+  - name: Check if volume doesn't exist
+    set_fact:
+      volumeexists: false
+    when: ansible_lvm['lvs']['containers'] is not defined
+
+  - name: Check if volume exists
+    set_fact:
+      volumeexists: true
+    when: ansible_lvm['lvs']['containers'] is defined
+
+# Create the LV when volume didn't exist earlier
+  - name: Create 2500MiB LVM on databin VG
+    lvol:
+      lv: containers
+      vg: extra
+      size: "2532"
+    when: volumeexists == False
+
+# Do always
+  - name: Resize containers LV
+    lvol:
+      vg: "extra"
+      lv: containers
+      size: 100%PVS
+      resizefs: true
+
+# Create filesystem when the volume didn't exist earlier
+  - name: Create filesystem
+    filesystem:
+      fstype: xfs
+      dev: /dev/extra/containers
+    when: volumeexists == False
+
+# Mount the FS
+  - name: Mount the filesystem
+    mount:
+      path: /var/lib/containers
+      src: /dev/extra/containers
+      fstype: xfs
+      state: mounted
