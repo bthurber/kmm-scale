@@ -13,9 +13,13 @@
         - key: "{{ sshkey }}"
 
     tasks:
+      - name: Get kind clusters
+        shell: "kind get clusters 2>&1|grep cluster|grep -v kind"
+        register: clusters
+
       - name: Delete kind clusters
-        shell: kind delete cluster --name cluster{{item}};
-        with_sequence: start=0 end=250
+        shell: kind delete cluster --name {{item}};
+        with_items: "{{ clusters.stdout_lines }}"
 
       - name: Flush handlers
         meta: flush_handlers
