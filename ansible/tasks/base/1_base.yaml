@@ -10,3 +10,14 @@
       - libvirt-daemon-driver-qemu
       - qemu-kvm
       - rsync
+      - tuned
+
+  - name: Enable helpful services
+    service: name={{ item }} enabled=yes state=started
+    with_items:
+      - tuned
+      - fstrim.timer
+    ignore_errors: true
+
+  - name: Set tuned profile to throughput-performance
+    shell: /usr/sbin/tuned-adm profile throughput-performance
