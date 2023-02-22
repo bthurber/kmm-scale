@@ -1,0 +1,20 @@
+---
+  - name: Deploy OCM on the hub
+    block:
+      - name: Report on Hub
+        debug:
+          msg: "I am HUUUUUUUUUUB"
+
+      - name: Set kubectl context for HUB
+        shell: kubectl  config use-context kind-hub
+
+      - name: Deploy OCM on the Hub
+        shell: clusteradm init --wait
+
+
+      - name: Deploy OCM Addon
+        shell: clusteradm install hub-addon --names application-manager
+
+
+
+    when: hub == True
