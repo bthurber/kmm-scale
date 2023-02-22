@@ -6,21 +6,19 @@ make deploy-hub
 ### Deploying KMM managed on the managed cluster
 
 First make sure that the $(KMM_MANAGED="1") env variable is included in the manager deployment manifest:
-
-$()$(
-    sh
-    --- a/config/manager-base/manager.yaml
-    +++ b/config/manager-base/manager.yaml
-    @@ -42,6 +42,8 @@ spec:
-    image: controller:latest
-    name: manager
-    env:
-    + - name: KMM_MANAGED
-    + value: "1"
-    - name: OPERATOR_NAMESPACE
-    valueFrom:
-    fieldRef:
-)$()
+~~~diff
+--- a/config/manager-base/manager.yaml
++++ b/config/manager-base/manager.yaml
+@@ -42,6 +42,8 @@ spec:
+image: controller:latest
+name: manager
+env:
++ - name: KMM_MANAGED
++ value: "1"
+- name: OPERATOR_NAMESPACE
+valueFrom:
+fieldRef:
+~~~
 
 kubectl config set-context ${CTX_HUB_CLUSTER}
 make deploy

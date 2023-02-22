@@ -1,0 +1,6 @@
+---
+  - name: Checkout git repos at specific versions
+    git:
+      repo: "https://github.com/kubernetes-sigs/kernel-module-management/"
+      dest: "/root/kernel-module-management/"
+    ignore_errors: true
