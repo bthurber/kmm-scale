@@ -11,10 +11,10 @@
       - name: Deploy OCM on the Hub
         shell: clusteradm init --wait
 
-
-      - name: Deploy OCM Addon
+      - name: Deploy OCM  app-lifecycle Addon
         shell: clusteradm install hub-addon --names application-manager
 
-
+      - name: Deploy OCM  Governance policty Addon
+        shell: clusteradm install hub-addon --names governance-policy-framework
 
     when: hub == True
