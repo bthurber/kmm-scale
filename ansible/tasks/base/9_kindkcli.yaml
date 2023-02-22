@@ -2,23 +2,44 @@
   - name: Run command {{ item }} on host
     shell: "{{item}}"
     with_items:
-      - /usr/bin/go install sigs.k8s.io/kind@v0.17
-      - curl -L https://raw.githubusercontent.com/open-cluster-management-io/clusteradm/main/install.sh | bash
-      - curl -L https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-        >/usr/bin/kubectl
-      - chmod +x /usr/bin/kubectl
-      # - groupadd docker
-      # - newgrp libvirt
-      # - usermod -aG qemu,libvirt $(id -un)
-      - systemctl enable --now libvirtd
-      # - usermod -aG docker $(id -un)
-      # - systemctl restart docker
-      - dnf -y copr enable karmab/kcli
-      - dnf -y install kcli
       - virsh pool-define-as default dir --target /var/lib/libvirt/images
       - virsh pool-build default
       - virsh pool-start default
       - virsh pool-autostart default
-      # - for command in oc openshift-install; do kcli download ${command} ;mv ${command} /usr/bin/; done
-      # - [ -f /root/.ssh/id_rsa ] || ssh-keygen -P '' -f /root/.ssh/id_rsa
     ignore_errors: true
+
+
+  - name: Get Kubectl versions
+    shell: curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
+    register: kubectlversion
+
+  - name: Download kubectl
+    get_url:
+      url: https://storage.googleapis.com/kubernetes-release/release/{{ kubectlversion.stdout_lines| join('') }}/bin/linux/amd64/kubectl
+      dest: /usr/bin/kubectl
+      mode: 0555
+
+  - name: Install clusteradm
+    shell: curl -L https://raw.githubusercontent.com/open-cluster-management-io/clusteradm/main/install.sh | bash
+    args:
+      creates: /usr/local/bin/clusteradm
+
+  - name: Install Kind
+    shell: /usr/bin/go install sigs.k8s.io/kind@v0.17
+    args:
+      creates: /root/go/bin/kind
+
+  - name: Enable Copr repo
+    shell: dnf -y copr enable karmab/kcli
+    args:
+      creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:karmab:kcli.repo
+
+  - name: Install kcli
+    package:
+      name: kcli
+      state: present
+
+  - name: Create SSH ssh-key
+    shell: ssh-keygen -P '' -f /root/.ssh/id_rsa
+    args:
+      creates: /root/.ssh/id_rsa

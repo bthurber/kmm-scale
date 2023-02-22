@@ -11,12 +11,14 @@
       - qemu-kvm
       - rsync
       - tuned
+      - git
 
   - name: Enable helpful services
     service: name={{ item }} enabled=yes state=started
     with_items:
       - tuned
       - fstrim.timer
+      - libvirtd
     ignore_errors: true
 
   - name: Set tuned profile to throughput-performance
