@@ -1,12 +1,21 @@
 ---
   - name: Create kind clusters
-    shell: kind create cluster --name cluster{{item}};
-    with_sequence: start=0 end=74
+    shell: kind create cluster --name cluster{{item}}
+    with_sequence: start=0 end={{ maxspokes }}
     ignore_errors: true
 
   - name: Set labels for clusters
     shell: kubectl label node cluster{{item}}-control-plane node-role.kubernetes.io/worker='' --context kind-cluster{{item}}
-    with_sequence: start=0 end=74
+    with_sequence: start=0 end={{ maxspokes }}
+
+  - name: Create kind cluster for hub
+    shell: kind create cluster --name hub
+    ignore_errors: true
+    when: hub == True
+
+  - name: Set labels for HUB
+    shell: kubectl label node hub-control-plane node-role.kubernetes.io/worker='' --context kind-hub
+    when: hub == True
 
   - name: Get number of clusters
     shell: kind get clusters|grep cluster|wc -l
