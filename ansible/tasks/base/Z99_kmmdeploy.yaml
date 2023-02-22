@@ -12,7 +12,7 @@
           force: true
         ignore_errors: true
 
-    # We can only add 1 digit to the block indent, so let's make the trick with KMMRULES string we're going to replace
+      # We can only add 1 digit to the block indent, so let's make the trick with KMMRULES string we're going to replace
       - name: Ensure we've the patched KMM_MANAGED variable in the yaml
         blockinfile:
           marker: ""
