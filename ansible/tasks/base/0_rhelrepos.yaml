@@ -1,0 +1,22 @@
+---
+  - name: Configure RHEL BaseOS
+    copy:
+      path: /etc/yum.repos.d/RHEL9-BaseOS.repo
+      mode: 0644
+      content: |
+        [rhel91-baseos]
+        name=RHEL9.1 BaseOS
+        baseurl=http://{{reposerver}}/released/rhel-9/RHEL-9/9.1.0/BaseOS/x86_64/os/
+        enabled=1
+        gpgcheck=0
+
+  - name: Configure RHEL AppStream
+    copy:
+      path: /etc/yum.repos.d/RHEL9-AppStream.repo
+      mode: 0644
+      content: |
+        [rhel91-appstream]
+        name=RHEL9.1 AppStream
+        baseurl=http://{{reposerver}}/released/rhel-9/RHEL-9/9.1.0/AppStream/x86_64/os/
+        enabled=1
+        gpgcheck=0
