@@ -17,4 +17,20 @@
       - name: Deploy OCM  Governance policty Addon
         shell: clusteradm install hub-addon --names governance-policy-framework
 
+      - name: Get Hub OCM token
+        shell: clusteradm get token --context kind-hub 2>&1|grep ^token|cut -d "=" -f 2-
+        register: tokenoutput
+
+      - name: Set fact for hub token
+        set_fact:
+          hubtoken: "{{ tokenoutput.stdout_lines|join('') }}"
+        delegate_to: "{{ item }}"
+        with_items: "{{ play_hosts }}"
+        run_once: yes
     when: hub == True
+
+  - name: Request to join spokes to HUB
+    shell: clusteradm join --context kind-cluster{{item}} --hub-token {{hubtoken}} --hub-apiserver "https://hub-control-plane:{{hubport}}" --wait --cluster-name
+      "cluster{{item}}.{{ inventory_hostname }}" --force-internal-endpoint-lookup
+    with_sequence: start=0 end={{ maxspokes }}
+    ignore_errors: true
