@@ -1,0 +1,123 @@
+---
+  - name: Deploy haproxy on the HUB
+    block:
+      - name: Report on Hub
+        debug:
+          msg: "I am HUUUUUUUUUUB"
+
+      - name: Set kubectl context for HUB
+        shell: kubectl config use-context kind-hub
+
+      - name: Install packages
+        package: name={{ item }} state=present
+        with_items:
+          - haproxy
+
+      - name: Get Hub hostname
+        set_fact:
+          hubname: "{{inventory_hostname}}"
+        delegate_to: "{{ item }}"
+        with_items: "{{ play_hosts }}"
+        run_once: yes
+
+      - name: Get Hub IP
+        set_fact:
+          hubip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+        delegate_to: "{{ item }}"
+        with_items: "{{ play_hosts }}"
+        run_once: yes
+
+      - name: Get Hub Port for OCP
+        shell: kind get kubeconfig --name hub 2>&1|grep server|cut -d ":" -f 4-
+        register: kindport
+
+      - name: Set fact for hub port
+        set_fact:
+          hubport: "{{ kindport.stdout_lines | join('') }}"
+        delegate_to: "{{ item }}"
+        with_items: "{{ play_hosts }}"
+        run_once: yes
+
+      - name: Set fact for hub url
+        set_fact:
+          huburl: "https://{{hubname}}:{{hubport}}"
+        delegate_to: "{{ item }}"
+        with_items: "{{ play_hosts }}"
+        run_once: yes
+
+      - name: Write Haproxy config
+        copy:
+          dest: /etc/haproxy/haproxy.cfg
+          content: |
+            # Global settings
+            #---------------------------------------------------------------------
+            global
+                log         127.0.0.1 local2
+
+                chroot      /var/lib/haproxy
+                pidfile     /var/run/haproxy.pid
+                maxconn     4000
+                user        haproxy
+                group       haproxy
+                daemon
+
+                # turn on stats unix socket
+                stats socket /var/lib/haproxy/stats
+
+                # utilize system-wide crypto-policies
+                ssl-default-bind-ciphers PROFILE=SYSTEM
+                ssl-default-server-ciphers PROFILE=SYSTEM
+
+            #---------------------------------------------------------------------
+            # common defaults that all the 'listen' and 'backend' sections will
+            # use if not designated in their block
+            #---------------------------------------------------------------------
+            defaults
+                mode                    tcp
+                log                     global
+                option                  dontlognull
+                option http-server-close
+                option                  redispatch
+                retries                 3
+                timeout http-request    10s
+                timeout queue           1m
+                timeout connect         10s
+                timeout client          1m
+                timeout server          1m
+                timeout http-keep-alive 10s
+                timeout check           10s
+                maxconn                 3000
+
+            #---------------------------------------------------------------------
+            # main frontend which proxys to the backends
+            #---------------------------------------------------------------------
+
+            listen hub
+                bind {{hubip}}:{{hubport}}   # External IP to listen to
+                mode tcp
+                timeout connect  4000
+                timeout client   180000
+                timeout server   180000
+                server hub 127.0.0.1:{{hubport}}  # Kind listening port to forward to
+        register: haproxycfg
+
+      - name: Enable haproxy service
+        service:
+          name: haproxy
+          state: restarted
+        when: haproxycfg.changed
+
+      - name: Open Up firewall port for Hub port
+        iptables:
+          action: insert
+          chain: INPUT
+          destination_port: "{{hubport}}"
+          protocol: tcp
+          policy: ACCEPT
+
+    when: hub == True
+
+  - name: Edit /etc/hosts for the other hosts to add the hub with the proper name
+    lineinfile:
+      path: /etc/hosts
+      line: "{{ hubip }}  hub-control-plane"
