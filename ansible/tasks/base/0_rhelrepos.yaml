@@ -1,7 +1,7 @@
 ---
   - name: Configure RHEL BaseOS
     copy:
-      path: /etc/yum.repos.d/RHEL9-BaseOS.repo
+      dest: /etc/yum.repos.d/RHEL9-BaseOS.repo
       mode: 0644
       content: |
         [rhel91-baseos]
@@ -12,7 +12,7 @@
 
   - name: Configure RHEL AppStream
     copy:
-      path: /etc/yum.repos.d/RHEL9-AppStream.repo
+      dest: /etc/yum.repos.d/RHEL9-AppStream.repo
       mode: 0644
       content: |
         [rhel91-appstream]
