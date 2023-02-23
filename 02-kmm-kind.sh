@@ -20,7 +20,7 @@ valueFrom:
 fieldRef:
 ~~~
 
-kubectl config set-context ${CTX_HUB_CLUSTER}
+kubectl config use-context ${CTX_HUB_CLUSTER}
 make deploy
 
 ### Applying the required OCM Policy
