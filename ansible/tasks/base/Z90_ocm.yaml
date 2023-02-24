@@ -81,6 +81,13 @@
     pause:
       minutes: 3
 
+  - name: Generate list of items
+    set_fact:
+      clusterlist: "{{ clusterlist | default([]) + [ 'cluster{0}.{1}'.format(item.0, item.1) ] }}"
+    with_nested:
+      - "{{ range(0, maxspokes + 1 ) }}"
+      - "{{ groups['all'] }}"
+
   - name: Deploy OCM on the hub
     block:
       - name: Report on Hub
@@ -88,7 +95,21 @@
           msg: "I am HUUUUUUUUUUB"
 
       - name: Set kubectl context for HUB
-        shell: kubectl  config use-context kind-hub
+        shell: kubectl config use-context kind-hub
+
+      - name: Accept joins from the spokes to the hub
+        shell: clusteradm accept --wait --clusters {{item}}
+        with_items: "{{clusterlist}}"
+        ignore_errors: true
+
+      - name: Enable the governance addon for the spokes
+        shell: clusteradm addon enable --names governance-policy-framework --clusters {{item}}
+        with_items: "{{clusterlist}}"
+
+
+      - name: Enable the Policy controller addon for the spokes
+        shell: clusteradm addon enable addon --names config-policy-controller --clusters  {{item}}
+        with_items: "{{clusterlist}}"
 
     # - name: Approve clusters joining from hub
     #   shell: clusteradm accept --clusters kind-spoke --context ${CTX_HUB_CLUSTER}
