@@ -116,11 +116,12 @@
 
       - name: Open Up firewall port for Hub port
         iptables:
+          comment: KIND HUB
           action: insert
           chain: INPUT
           destination_port: "{{hubport}}"
           protocol: tcp
-          policy: ACCEPT
+          jump: ACCEPT
 
     when: hub == True
 
