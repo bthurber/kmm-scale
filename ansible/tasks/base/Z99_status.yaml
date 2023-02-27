@@ -5,4 +5,4 @@
 
   - name: Print number of clusters
     debug:
-      msg: "{{output.stdout_lines}}"
+      msg: "{{output.stdout}}"
