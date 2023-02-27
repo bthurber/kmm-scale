@@ -1,10 +1,19 @@
 ---
+  - name: Checkout git repos at specific versions
+    git:
+      repo: https://github.com/kubernetes-sigs/kernel-module-management/
+      dest: /root/kernel-module-management/
+      force: true
+    ignore_errors: true
+
+
   - name: Perform patching and deployment of HUB
     block:
       - name: Report on Hub
         debug:
           msg: "I am HUUUUUUUUUUB"
 
+    # Reset repo status to start clean on the hub
       - name: Checkout git repos at specific versions
         git:
           repo: https://github.com/kubernetes-sigs/kernel-module-management/
@@ -12,33 +21,11 @@
           force: true
         ignore_errors: true
 
-      # We can only add 1 digit to the block indent, so let's make the trick with KMMRULES string we're going to replace
-      - name: Ensure we've the patched KMM_MANAGED variable in the yaml
-        blockinfile:
-          marker: ""
-          path: /root/kernel-module-management/config/manager-base/manager.yaml
-          insertbefore: '- name: OPERATOR_NAMESPACE'
-          block: |
-            KMMRULES- name: KMM_MANAGED
-            KMMRULES  value: "1"
-
-      - name: Remove blank lines blockinfile put in
-        lineinfile:
-          path: /root/kernel-module-management/config/manager-base/manager.yaml
-          state: absent
-          regexp: '^$'
-
-      - name: Remove blank lines blockinfile put in
-        replace:
-          path: /root/kernel-module-management/config/manager-base/manager.yaml
-          regexp: 'KMMRULES'
-          replace: '          '
-
       - name: Set kubectl context for HUB
         shell: kubectl  config use-context kind-hub
 
       - name: Deploy KMM on hub
-        shell: make deploy
+        shell: make deploy-hub
         args:
           chdir: /root/kernel-module-management/
 
