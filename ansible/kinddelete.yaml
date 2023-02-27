@@ -13,8 +13,14 @@
         - key: "{{ sshkey }}"
 
     tasks:
+      - name: Edit /etc/hosts to remove entry for the hub to avoid kind deployment issues
+        lineinfile:
+          path: /etc/hosts
+          regexp: ".*hub-control-plane"
+          state: absent
+
       - name: Get kind clusters
-        shell: "kind get clusters 2>&1|grep cluster|grep -v kind"
+        shell: "kind get clusters 2>&1|grep -v podman"
         register: clusters
 
       - name: Delete kind clusters
