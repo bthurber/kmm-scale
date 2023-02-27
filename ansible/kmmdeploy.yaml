@@ -15,9 +15,6 @@
       - name: Include base tasks
         include_tasks: "{{item}}"
         loop: "{{ query('fileglob', 'tasks/base/Z90*') | sort }}"
-      - name: Include base tasks
-        include_tasks: "{{item}}"
-        loop: "{{ query('fileglob', 'tasks/base/Z9*_kmm*') | sort }}"
 
       - name: Flush handlers
         meta: flush_handlers
