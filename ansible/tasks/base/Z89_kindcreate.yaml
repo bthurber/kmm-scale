@@ -1,12 +1,9 @@
 ---
-  - name: Create kind clusters
-    shell: kind create cluster --name cluster{{item}}
-    with_sequence: start=0 end={{ maxspokes }}
-    ignore_errors: true
-
-  - name: Set labels for clusters
-    shell: kubectl label node cluster{{item}}-control-plane node-role.kubernetes.io/worker='' --context kind-cluster{{item}}
-    with_sequence: start=0 end={{ maxspokes }}
+  - name: Edit /etc/hosts to remove entry for the hub to avoid kind deployment issues
+    lineinfile:
+      path: /etc/hosts
+      regexp: ".*hub-control-plane"
+      state: absent
 
   - name: Create kind cluster for hub
     shell: kind create cluster --name hub
@@ -16,6 +13,15 @@
   - name: Set labels for HUB
     shell: kubectl label node hub-control-plane node-role.kubernetes.io/worker='' --context kind-hub
     when: hub == True
+
+  - name: Create kind clusters
+    shell: kind create cluster --name cluster{{item}}
+    with_sequence: start=0 end={{ maxspokes }}
+    ignore_errors: true
+
+  - name: Set labels for clusters
+    shell: kubectl label node cluster{{item}}-control-plane node-role.kubernetes.io/worker='' --context kind-cluster{{item}}
+    with_sequence: start=0 end={{ maxspokes }}
 
   - name: Get number of clusters
     shell: kind get clusters|grep cluster|wc -l

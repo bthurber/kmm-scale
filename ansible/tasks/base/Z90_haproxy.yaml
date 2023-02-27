@@ -16,13 +16,19 @@
       - name: Get Hub hostname
         set_fact:
           hubname: "{{inventory_hostname}}"
+        when: hub == True
+        run_once: yes
+
+      - name: Set Hub hostname
+        set_fact:
+          hubname: "{{hubname}}"
         delegate_to: "{{ item }}"
         with_items: "{{ play_hosts }}"
         run_once: yes
 
-      - name: Get Hub IP
+      - name: Set Hub IP
         set_fact:
-          hubip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+          hubip: "{{hostvars[hubname]['ansible_default_ipv4']['address']}}"
         delegate_to: "{{ item }}"
         with_items: "{{ play_hosts }}"
         run_once: yes
@@ -44,6 +50,7 @@
         delegate_to: "{{ item }}"
         with_items: "{{ play_hosts }}"
         run_once: yes
+
 
       - name: Write Haproxy config
         copy:
