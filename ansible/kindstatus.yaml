@@ -14,7 +14,7 @@
     tasks:
       - name: Include base tasks
         include_tasks: "{{item}}"
-        loop: "{{ query('fileglob', 'tasks/base/Z99_kindstatus.yaml') | sort }}"
+        loop: "{{ query('fileglob', 'tasks/base/Z99_*status*.yaml') | sort }}"
 
       - name: Flush handlers
         meta: flush_handlers
