@@ -73,7 +73,7 @@
 
   - name: Request to join spokes to HUB
     shell: clusteradm join --context kind-cluster{{item}} --hub-token {{hubtoken}} --hub-apiserver "https://hub-control-plane:{{hubport}}" --wait --cluster-name
-      "cluster{{item}}.{{ inventory_hostname }}" #--force-internal-endpoint-lookup
+      "cluster{{item}}-{{ inventory_hostname|replace('.', '-') }}" #--force-internal-endpoint-lookup
     with_sequence: start=0 end={{ maxspokes }}
     ignore_errors: true
 
@@ -83,7 +83,7 @@
 
   - name: Generate list of items
     set_fact:
-      clusterlist: "{{ clusterlist | default([]) + [ 'cluster{0}.{1}'.format(item.0, item.1) ] }}"
+      clusterlist: "{{ clusterlist | default([]) + [ 'cluster{0}-{1}'.format(item.0, item.1|replace('.', '-')) ] }}"
     with_nested:
       - "{{ range(0, maxspokes + 1 ) }}"
       - "{{ groups['all'] }}"
