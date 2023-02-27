@@ -3,5 +3,5 @@
     git:
       repo: https://github.com/iranzo/kmm-scale
       dest: /root/kmm-scale
-    when: Hub == True
+    when: hub == True
     ignore_errors: true
