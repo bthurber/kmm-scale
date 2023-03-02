@@ -21,5 +21,5 @@
       - libvirtd
     ignore_errors: true
 
-  - name: Set tuned profile to virt-host
-    shell: /usr/sbin/tuned-adm profile virt-host
+  - name: Set tuned profile to virtual-host
+    shell: /usr/sbin/tuned-adm profile virtual-host
