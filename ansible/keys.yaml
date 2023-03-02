@@ -1,0 +1,18 @@
+---
+  - hosts: all
+    user: root
+
+    vars:
+      console_keymap: en
+      console_font: eurlatgr
+      system_locale: en_US.UTF-8
+      root_shell: /bin/bash
+      domain: "{{ ansible_nodename.split('.')[1:] | join('.') }}"
+      keys:
+        - key: "{{ sshkey }}"
+
+    tasks:
+      - name: Copy ssh keys
+        shell: sshkeyscopy {{ rootpassword }} {{ item }}
+        with_items: "{{ groups['all'] }}"
+        delegate_to: localhost
