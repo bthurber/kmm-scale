@@ -19,15 +19,15 @@
       dest: /usr/bin/kubectl
       mode: 0555
 
-  - name: Install clusteradm
-    shell: curl -L https://raw.githubusercontent.com/open-cluster-management-io/clusteradm/main/install.sh | bash
-    args:
-      creates: /usr/local/bin/clusteradm
+  # - name: Install clusteradm
+  #   shell: curl -L https://raw.githubusercontent.com/open-cluster-management-io/clusteradm/main/install.sh | bash
+  #   args:
+  #     creates: /usr/local/bin/clusteradm
 
-  - name: Install Kind
-    shell: /usr/bin/go install sigs.k8s.io/kind@v0.17
-    args:
-      creates: /root/go/bin/kind
+  # - name: Install Kind
+  #   shell: /usr/bin/go install sigs.k8s.io/kind@v0.17
+  #   args:
+  #     creates: /root/go/bin/kind
 
   - name: Enable Copr repo
     shell: dnf -y copr enable karmab/kcli
