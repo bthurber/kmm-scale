@@ -16,3 +16,4 @@
         shell: sshkeyscopy {{ rootpassword }} {{ item }}
         with_items: "{{ groups['all'] }}"
         delegate_to: localhost
+        when: hub==True
