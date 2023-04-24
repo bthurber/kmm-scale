@@ -9,7 +9,8 @@ date: 2023-04-24 00:00:00 +0200
 categories:
   - tech
   - OpenShift
-modified: 2023-04-17T21:29:55.010Z
+modified: 2023-04-24T11:29:14.925Z
+slug: kmm-1-1-scale-testing
 ---
 
 <!-- TOC -->
@@ -35,7 +36,7 @@ modified: 2023-04-17T21:29:55.010Z
 
 Kernel Module Management (KMM) Operator manages, builds, signs and deploys out-of-tree kernel modules and device plugins on OpenShift Container Platform clusters.
 
-KMM adds, for the HUB/Spoke scenario, a new ManagedClusterModule which describes an out-of-tree kernel module and its associated device plugin. You can use Module resources to configure how to load the module, define [ModuleLoader](https://kmm.sigs.k8s.io/documentation/module_loader_image/) images for kernel versions, and include instructions for building and signing modules for specific kernel versions.
+KMM adds, for the HUB/Spoke scenario, a new ManagedClusterModule which describes an out-of-tree kernel module and its associated device plugin. You can use ManagedClusterModule resources to configure how to load the module, define [ModuleLoader](https://kmm.sigs.k8s.io/documentation/module_loader_image/) images for kernel versions, and include instructions for building and signing modules for specific kernel versions.
 
 KMM is designed to accommodate multiple kernel versions at once for any kernel module, allowing for seamless node upgrades and reduced application downtime.
 
