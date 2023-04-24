@@ -1,5 +1,5 @@
 ---
-author: Pablo Iranzo Gómez
+author: [Pablo Iranzo Gómez, Enrique Belarte]
 title: KMM 1.1 Scale testing
 tags:
   - KMM
