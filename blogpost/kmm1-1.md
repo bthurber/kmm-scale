@@ -48,12 +48,12 @@ Don't forget that also KMM is a community project at [kubernetes-sigs/kernel-mod
 In order to make it easier, we're going to use some acronyms and products along this text, find here the most common ones:
 
 | Term      | Definition                                                                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | KMM       | Kernel Module Management                                                                                                                               |
 | ACM       | Advance Cluster Management                                                                                                                             |
 | OpenShift | Red Hat's Kubernetes-based product                                                                                                                     |
 | HUB       | Central management Cluster that via ACM manages some Spokes                                                                                            |
-| Spoke     | Cluster managed via ACM from a management cluster referred to                                                                                          | as Hub |
+| Spoke     | Cluster managed via ACM from a management cluster referred to as Hub                                                                                   |
 | SNO       | Single-Node OpenShift                                                                                                                                  |
 | CRD       | Custom Resource Definition                                                                                                                             |
 | EDGE      | Relevant to Telco 5G and other use cases, refers to systems that are placed close to the end user making use of the services to get better performance |
