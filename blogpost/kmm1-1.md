@@ -9,7 +9,7 @@ date: 2023-04-24 00:00:00 +0200
 categories:
   - tech
   - OpenShift
-modified: 2023-04-24T11:29:14.925Z
+modified: 2023-05-11T19:03:14.925Z
 slug: kmm-1-1-scale-testing
 ---
 
@@ -20,14 +20,14 @@ slug: kmm-1-1-scale-testing
 - [The test goal](#the-test-goal)
 - [Test environment](#test-environment)
 - [The Grafana instance](#the-grafana-instance)
-- [Our results](#our-results)
+- [Results](#results)
   - [KMM installation](#kmm-installation)
   - [Module installation](#module-installation)
   - [Module upgrade](#module-upgrade)
 - [Summary](#summary)
-  - [Milestones](#milestones)
-  - [Results](#results)
-- [Lessons learned](#lessons-learned)
+  - [Timeline and Milestones](#timeline-and-milestones)
+  - [Final results](#final-results)
+- [Takeaways](#takeaways)
 - [Thanks](#thanks)
 
 <!-- /TOC -->
@@ -76,9 +76,7 @@ The goal for this test is to reach 1000 nodes deployed with the KMM module and m
 
 # Test environment
 
-We reached out to the ScaleLab team at [https://scalelab.redhat.com/](https://scalelab.redhat.com/) to explain our use case and to request a loan of machines we could use for our testing.
-
-The team provided 69 systems in total, all equal, and with the following specifications:
+The test environmnt consisted of 69 systems in total, all equal, and with the following specifications:
 
 - Dell R650 with 512Gb of RAM, 3TB NVME, 2*1.8Tb SSD + 1* 447GB SSD, powered by the Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz processor reported as 112 CPU's (dual processor, 56 cores, 112 threads).
 
@@ -103,19 +101,17 @@ It might sound easy to achieve, but in reality, there are several things to take
 - Define the network cards for the VM's to be interconnected and able to reach the hub.
 - Have proper sizing and placing of the VM's so that the faster hard drives are used for holding the VM disks and avoid extra workload because of VM density causing disk pressure on the same drive.
 
-Most of this logic is already present in the scripts at [https://github.com/redhat-performance/jetlag/](https://github.com/redhat-performance/jetlag/) repository, which is pretty tied to the SCALELAB environment that we were going to use for this setup to prepare and configure the relevant resources for this task.
+Most of this logic is already present in the scripts at [https://github.com/redhat-performance/jetlag/](https://github.com/redhat-performance/jetlag/) repository, which is pretty tied to the environment that we used for this setup to prepare and configure the relevant resources for this task.
 
-In total we got 27 VMs per host, getting to a total of 1755 potential SNOs. Note the word potential here… we're setting up the infrastructure to mimic real hardware:
+We achieved 27 VMs per host, getting to a total of 1755 potential SNO's. Note the word potential here… we're setting up the infrastructure to mimic real hardware:
 
 - Remotely power on and off the VMs (using [sushy-tools](https://github.com/openstack/sushy-tools) to interact with libvirt).
 - KVM for running the VMs.
 - Etc.
 
-Each SNO is configured with [8 VCPU and 18Gb of RAM](https://github.com/redhat-performance/jetlag/blob/main/ansible/roles/hv-vm-create/templates/kvm-def.xml.j2), which is in line with the bare minimum requirements to get OpenShift deployed.
+Each SNO is configured with [8 VCPU and 18Gb of RAM](https://github.com/redhat-performance/jetlag/blob/main/ansible/roles/hv-vm-create/templates/kvm-def.xml.j2), which is in line with the bare minimum requirements for an OpenShift deployment.
 
 For example, we had to alter the limits for the KMM deployment in order to allow it to use more memory during the module build, which was initially limited to 128Mb of RAM and was not enough for the compilation of the module.
-
-We were pretty lucky and after the whole process of deployment in this restricted scenario, configuration, ACM deployment, and provisioning of the clusters, only one cluster failed ‘sno01412’, out of 1755 SNOs in total.
 
 Note that some other spokes will be discarded in the next paragraphs.
 
@@ -139,33 +135,31 @@ spec:
 
 This process is performed automatically as part of the scripts used to deploy the environment, but we wanted to validate and fix some hosts that failed to apply the policy that automatically was configuring it.
 
-In order to prepare the setup, we also had to mirror into our registry the KMM Operator, and for the reporting, we also added the Grafana operator.
-
-As a side issue, we ran out of disk space in the bastion, as we were only using the 500 GB SSD, so we've noted this to automatically set additional space on /var/lib/containers on the bastion using extra disks.
-
-Also, as we switched from IPv4 to IPv6, we were required to perform some manual cleanup of leftovers that could have caused some of the instabilities we saw in previous attempts.
+In order to prepare the setup, we also had to mirror the KMM operator into the registry, and for the reporting, we also added the Grafana operator.
 
 # The Grafana instance
 
-OpenShift already includes a Grafana dashboard, together with ACM, that can show some information about the bare-metal cluster we will use for management.
+OpenShift already includes a Grafana dashboard, together with ACM, that can show some information about the bare-metal cluster used for management.
 
 ![](images/100002010000072F000003B41B178679481C50E9.png)
 
-However, in order to be able to customize the dashboard, we are required to install a custom instance. This custom instance is what we'll show in the next screenshots to highlight the behavior of the cluster and the numbers obtained.
+However, in order to be able to customize the dashboard, it's required to install a custom instance. This custom instance is what is shown in the next screenshots to highlight the behavior of the cluster and the numbers obtained.
 
-# Our results
+# Results
 
-As a briefing, we've 1754 valid possible SNOs (deployed and in operation).
+## Environment
 
-Out of those, 6 spokes were removed, as they failed in different steps (test upgrade of OpenShift, operators in a non-working state, etc).
+There were a total of 1,754 valid possible SNO's deployed and in operation with one SNO down due to a registration issue. 
 
-So 1748, is the real number of spokes available for deploying KMM
+Of the 1,754 SNO spoke clusters, 6 were removed as they failed in different steps (test upgrade of OpenShift, operators in a non-working state, etc).
+
+For testing, 1,748 SNO's were used for deploying KMM, well over the 1,000 target set as a requirement prior to deployment and testing at scale.
 
 ## KMM installation
 
-For deploying KMM we used the operator, to get it added on the Hub.
+For deploying KMM, the operator was first deployed on the Hub.
 
-Using ACM, we defined a policy to also add it to the managed clusters, so that's what we'll be seeing in the next graphs.
+Using ACM, we defined a policy to also add it to the managed clusters, as seen in the next graphs.
 
 First, the KMM Hub installation started at 11:42, and we can see some data on the following graph:
 
@@ -173,95 +167,94 @@ First, the KMM Hub installation started at 11:42, and we can see some data on th
 
 ![](images/1000020100000390000001297BDAEBAF8E447190.png)
 
-As we started the spokes installation in the period between 12:17 and 12:23 we can also see that after the initial setup of the hub and some activity during the spokes installation, the usage of resources is more or less steady, we can see a bump to a new level around 13:30, but this was once all the activity for deployment has finished.
+As we started the spokes installation in the period between 12:17 and 12:23, we see that after the initial setup of the hub and some activity during the spokes installation, the usage of resources is more or less steady however there is a bump around 13:30. This occured after all the activity for deployment was finished.
 
-We can compare this pattern as well with the SNO's resources usage:
+We compare this pattern with the SNO's resources usage:
 
 ![](images/1000020100000390000001565907347C7C4CBB7C.png)
 
 ![](images/10000201000003A2000001567041AB958D7DFBBC.png)
 
-The SNOs were already active but without too much load in RAM or CPU, as a big part of the installation is just deploying the required components in the clusters.
+The SNO's were active but without too much load in RAM or CPU as a big part of the installation is just deploying the required components in the clusters.
 
-If we focus on the average graphs to avoid the spikes of regular activity we can see some patterns:
+If we focus on the average graphs to avoid the spikes of regular activity, patterns emerge:
 
 ![](images/10000201000003900000012337A1285C8DD5EB0A.png)
 
 ![](images/10000201000003980000012906353036F284D06C.png)
 
-And for the spokes:
+...and for the spokes:
 
 ![](images/1000020100000399000001290AEB14BCFD6D50C6.png)
 
 ![](images/10000201000003900000012186A6259F523EA553.png)
 
-In general, Hub has been unaffected, and in the SNOs, we have a bit more activity in average and RAM usage, but if we check the numbers it's around 200Mb of RAM usage in difference, so not a big deal in terms of resource consumption.
+In general, the Hub cluster has been unaffected and for the SNO's, there is a bit more activity in average and RAM usage. If we check the numbers it's around 200Mb of RAM usage in difference. A small difference in terms of resource consumption.
 
-In terms of KMM controllers, we can see it really clearly here:
+For KMM controllers, we can see it really clearly here:
 
 ![](images/10000201000003900000012240AD8E1F19996B05.png)
 
-The number of KMM controllers increased in a really short period of time and got to the total number of operative SNOs
+The number of KMM controllers increased in a really short period of time as deployed to the total number of operative SNO's.
 
 ## Module installation
 
-Now that KMM has been installed, we need to actually deploy a module, this will cause KMM to compile it, and prepare the relevant images that the Spokes will consume.
+Now that KMM has been installed, we need to actually deploy a module. This causes KMM to compile it and prepare the relevant images that the spokes will consume.
 
 The module used for this test is a really simple module called [kmm-kmod](https://github.com/rh-ecosystem-edge/kernel-module-management/tree/main/ci/kmm-kmod) which is part of the KMM project. It just prints a “Hello World” and a “Goodbye World” message to the kernel log but it is suitable for testing building and loading kernel modules with KMM like any other ‘production’ module would be.
 
-In our case, we first got the module compiled and installed prior to our testing so that we can compare the workload increase when the module is already prepared in the hub and ready for distribution.
+In our case, the kernel module is compiled and installed prior to our testing so that we can compare the workload increase when the module is already prepared in the hub and ready for distribution.
 
-In this case, the container that was already working in the HUB started to be deployed and we can check the count change here:
+The container that was already working in the HUB started to be deployed and we can check the count change here:
 
 ![](images/100002010000039A00000129E8776215C8E330D1.png)
 
-Around 13:30, all SNOs got the module container up and running and
-repeated the graphs provided earlier for the whole period, we can see
-that hub increased memory usage
+Around 13:30, all SNO's deployed and started the module container. After repeating the graphs provided earlier for the whole period, we can see
+that the hub increased memory usage:
 
 ![](images/1000020100000390000001297BDAEBAF8E447190.png)
 
 ![](images/10000201000003980000012906353036F284D06C.png)
 
-And for the spokes:
+...and for the spokes:
 
 ![](images/1000020100000399000001290AEB14BCFD6D50C6.png)
 
 ![](images/10000201000003900000012186A6259F523EA553.png)
 
-As we can see that once KMM was installed, a bump in the memory (under 200Mb) happened, but no appreciable change once the module was loaded.
+Once KMM was installed, a bump in the memory (under 200Mb) happened but no appreciable change once the module was loaded.
 
-Note that in this situation, the hub creates the module (compilation, etc), builds the image, and then ACM does the deployment to the spokes.
+Note that in this situation, the hub creates the module (compilation, etc), builds the image, and then ACM deploys to the spokes.
 
-From the numbers, we see that 100% of the operative SNOs deployed the KMM controller and loaded the module within a really short timeframe with no noticeable impact.
+From the numbers, we see that 100% of the operative SNO's deployed the KMM controller and loaded the module within a really short timeframe with no noticeable impact.
 
 ## Module upgrade
 
-One of the tests we wanted to perform was to get SNOs to do a kernel upgrade, in this way, we can test KMM by doing the new module compilation itself and then, delivering the updated kernel module to the spoke clusters.
+One of the tests performed was to upgarade the kernel on the SNO's. This triggers KMM by doing the new module compilation and delivers the updated kernel module to the spoke clusters.
 
-This, of course, has an implication… a way to get a newer kernel on the SNO nodes… is by actually upgrading OpenShift itself.
+The kernel upgrade is performed as part of an OpenShift upgrade.  In the testing we performed a cluster upgrade on each SNO, spoke cluster. 
 
-This, which might sound easy, means having to mirror the required images for the newer OpenShift release, apply an ICSP to all the SNOs, as well as adding the signatures for validating the new image, and of course, launch the upgrade itself.
+This, which might sound easy, means having to mirror the required images for the newer OpenShift release, apply an ICSP to all the SNO's, as well as adding the signatures for validating the new image, and of course, launch the upgrade itself.
 
-The Hub started the upgrade at 16:20, moving from a starting OpenShift version 4.12.3 to the final version 4.12.6 which was previously mirrored, with the relevant signatures added, etc.
+The Hub started the upgrade at 16:20, starting with an OpenShift version 4.12.3 to the final version 4.12.6 which was previously mirrored, with the relevant signatures added, etc.
 
-The upgrade took around 90 minutes in total for the Hub, and once the Hub moved to 4.12.6, it recompiled the Kernel module.
+The upgrade took around 90 minutes in total for the Hub, and once the Hub upgraded to 4.12.6, it recompiled the Kernel module.
 
-In our tests, we tested manually on the first SNO (sno0001), and once validated, this was launched for all the remaining and active nodes.
+In our tests, we manually tested on the first SNO and once validated, this was launched for all the remaining and active nodes.
 
 The timing was the following:
 
-- 18:22 First SNO (sno0001) and others start applying YAML for version signatures and for ICSP (just missing the upgrade itself).
-- 18:24 script to launch all the upgrades in parallel started.
-- 19:38: 1500 updated, 249 in progress.
-- 19:49: 4 nodes failed the OpenShift Upgrade.
-- 22:51: all SNOs, including the failing ones, are upgraded to 4.12.6.
+- 18:22 First SNO (sno0001) and others start applying YAML for version signatures and for ICSP (just missing the upgrade itself)
+- 18:24 script to launch all the upgrades in parallel started
+- 19:38 1500 updated, 249 in progress
+- 19:49 4 nodes failed the OpenShift Upgrade
+- 22:51 all SNO's, including the failing ones, are upgraded to 4.12.6
 
 Out of the total count, 4 nodes didn't come back (API not responding), a manual reboot of the SNO's got them into API responding, and apparently good progress towards finishing the upgrade to the 4.12.6 release.
 
 The upgrade itself, as it took time, caused no appreciable load on the Hub itself, but as highlighted, several SNO hosts did not perform the upgrade properly.
 
-Finally as just a confirmation about what we were expecting:
+Finally as just a confirmation about what was expected:
 
 ![](images/100002010000073B0000014166BB9D50586F35D5.png)
 
@@ -269,24 +262,24 @@ The Hub did perform a build once the first SNO required the new kernel, but the 
 
 # Summary
 
-## Milestones
+## Timeline and Milestones
 
-Check the graphs and milestones for the whole process
+Timeline and milestones for the whole process:
 
 ![](images/100002010000073100000379C64605D632B48403.png)
 
 - 11:42 KMM installation at HUB.
-- 12:17-12:23 KMM installation at SNOs (controller).
-- 13:30 KMM KMOD added and deployed to all SNOs.
+- 12:17-12:23 KMM installation at SNO's (controller).
+- 13:30 KMM KMOD added and deployed to all SNO's.
 - 16:20 HUB OpenShift upgrade from 4.12.3 to 4.12.6.
 - 17:50 Hub upgrade finished.
 - 18:22 First SNO (sno0001) and others start applying YAML for version signatures and for ICSP (just missing the upgrade itself).
 - 18:24 script to launch all the upgrades in parallel started.
 - 19:38: 1500 updated, 249 in progress.
 - 19:49: 4 nodes failed the OpenShift Upgrade.
-- 22:51: all SNOs, including the failing ones, are upgraded to 4.12.6.
+- 22:51: all SNO's, including the failing ones, are upgraded to 4.12.6.
 
-Metrics about spokes
+Metrics about spokes:
 
 | Metric                      | Spokes # |
 | --------------------------- | -------- |
@@ -297,7 +290,7 @@ Metrics about spokes
 | KMOD deployed               | 1748     |
 | KMOD updated                | 1748     |
 
-## Results
+## Final results
 
 **For KMM Operator deployment at Hub, OperatorHub via UI has been used and a Policy has been applied with oc client in order to deploy the controller at spokes:**
 
@@ -328,28 +321,31 @@ Note that some values are reported as N/A for the spokes as the operation came a
 | Spoke (avg.)     | N/A        | N/A             | N/A                                                                  | N/A                                    |
 | Spoke (total)    | N/A        | N/A             | N/A                                                                  | N/A                                    |
 
-# Lessons learned
+# Takeaways
 
-As highlighted in the previous paragraphs this test has been affected by several infrastructure issues:
+As highlighted prevously, this test was affected by several infrastructure issues:
 
-- OpenShift deployment (SNO installation) by ACM.
-- OpenShift Upgrades (SNOs failing in the upgrade and requiring manual intervention).
+- OpenShift deployment (SNO installation) by ACM
+- OpenShift Upgrades (SNO's failing in the upgrade and requiring manual intervention)
 
-Also, some other difficulties played in this:
+...additionally:
 
-- The infrastructure uses a dense number of VMs to simulate the clusters and this can cause:
-- Bottlenecks on the network during the installation of SNOs.
-- Netmask requiring adjustment when using IPv4, or using IPv6.
+The infrastructure uses a dense number of VMs to simulate the clusters and this can cause:
+
+- Bottlenecks on the network during the installation of SNO's
+- Netmask requiring adjustment when using IPv4, or using IPv6
 - Using IPv6 requires using a disconnected environment, which requires extra work for ‘simple' things like:
-- Mirroring the images.
-- Deploying new operators (like the custom Grafana for customizing the dashboard).
+- Mirroring the images
+- Deploying new operators (like the custom Grafana for customizing the dashboard)
 
-We've contributed back some of the found issues to the jetlag repository to reduce some of the problems found, but still, there were a lot of manual tasks required for setting up the environment itself.
+For infrastructure issues found, we contributed back to the jetlag repository howver there were a lot of manual tasks required for setting up the environment itself.
 
-In the end, the KMM test was very smooth and the results were along the expected lines: little to no impact at all on the clusters, but all the preparation work involved in the setup, and troubleshooting everything else involved, took most of the time.
-
-It's worth considering investing extra time in shaping those scripts and setups to make them more straightforward when a team is going to scale test a product and avoid the hassle of dealing with all the nits and picks from the environment itself which could be considered as infrastructure and not really a part of the test itself.
+In the end, the KMM test was very smooth and the results were along the expected lines which was little to no impact at all on the clusters.
 
 # Thanks
 
-We want to give special thanks to the Scale Lab team and especially to Will Foster, for providing us with the hardware for performing this test, for helping us with the Jetlag and relevant repositories for setting up the bare-metal servers and the virtual infrastructure, who collaborated with the setup of custom Grafana Instance, and from the KMM team for helping with some of the steps required for KMM Hub-Spoke deployment, to that helped with the Scale Lab requests and defining the metrics and goals and especially to Rom for all the support and trust into this endeavor, as well as who provided resources for making this happen.
+We want to give special thanks to the following who helped contribute to the success of this endeavor:
+
+- Scale Lab team
+- Alex Krzos
+- Edge Pillar, Partner Accelerator team
